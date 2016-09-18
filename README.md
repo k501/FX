@@ -1,3 +1,4 @@
-# jiji-with-tensorflow-example
+# FX trade system using Jiji & tensorflow
 
-Example of the forex trading system using Jiji and Tensorflow.
+referrence : http://qiita.com/jiji_platform/items/268377c542706e6f44b1
+
