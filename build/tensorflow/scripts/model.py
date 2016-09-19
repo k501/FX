@@ -109,7 +109,6 @@ class Trainer(Model):
         return profit_or_loss.values.reshape(len(profit_or_loss.values), 1)
 
 
-
 class Estimator(Model):
 
     def estimate( self, data ):

@@ -12,7 +12,7 @@ class TensorFlowUsd
 
   def self.description
     <<-STR
-TensorFlowと連携してトレードするエージェントのサンプル
+TensorFlowと連携してUSDJPYをトレードするエージェントのサンプル
       STR
   end
 
@@ -132,7 +132,7 @@ TensorFlowと連携してトレードするエージェントのサンプル
     def initialize
       @client = HTTPClient.new
     end
-    # トレードを勝敗予測をtensorflowに問い合わせる
+    # 勝敗予測をtensorflowに問い合わせる
     def do_trade?(signal, sell_or_buy)
       body = {sell_or_buy: sell_or_buy}.merge(signal)
       body.delete(:ma5)
@@ -161,6 +161,7 @@ class TradeAndSignals
 
   store_in collection: 'trade_data'
 
+  # collectionのデータ型を定義
   field :macd_difference,    type: Float # macd - macd_signal
 
   field :rsi,                type: Float
@@ -178,6 +179,7 @@ class TradeAndSignals
   field :entered_at,         type: Time
   field :exited_at,          type: Time
 
+  # DBに格納するデータを整形？？
   def self.create_from( signal_data, position )
     TradeAndSignals.new do |ts|
       signal_data.each do |pair|
@@ -192,7 +194,7 @@ class TradeAndSignals
   end
 end
 
-# シグナルを計算するクラス
+# Jijiに標準搭載されているSignalsライブラリを利用して指標を計算するクラス
 class SignalCalculator
 
   def initialize(broker)
@@ -232,6 +234,7 @@ class SignalCalculator
     end
   end
 
+  # JijiのSignalsクラスで指数を計算
   def create_signals
     @macd  = Signals::MACD.new
     @ma5   = Signals::MovingAverage.new(5)
@@ -245,7 +248,18 @@ class SignalCalculator
     @rsi   = Signals::RSI.new(9)
   end
 
+  # Jijiのretrieve_ratesメソッドで過去のレート情報を取得する
   def retrieve_rates(time)
+    # 引数で、通貨ペア、集計期間、取得開始日時、取得終了日時を指定します。
+    # 集計期間には、以下のいずれかを指定できます。
+    #   :fifteen_seconds .. 15秒足
+    #   :one_minute      .. 分足
+    #   :fifteen_minutes .. 15分足
+    #   :thirty_minutes  .. 30分足
+    #   :one_hour        .. 1時間足
+    #   :six_hours       .. 6時間足
+    #   :one_day         .. 日足
+    #
     @broker.retrieve_rates(:USDJPY, :one_day, time - 60*60*24*60, time )
   end
 
