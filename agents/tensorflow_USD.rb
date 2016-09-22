@@ -8,6 +8,7 @@ require 'json'
 # TensorFlowと連携してトレードするエージェントのサンプル
 class TensorFlowUsd
 
+  # エージェントとして登録する
   include Jiji::Model::Agents::Agent
 
   def self.description
@@ -23,18 +24,24 @@ TensorFlowと連携してUSDJPYをトレードするエージェントのサン�
     ]
   end
 
+  # 01.初期化処理の実行
   def post_create
     @calculator = SignalCalculator.new(broker)
+    # ユーティリティ
+    # 先行指標と遅行指標を受け取って、クロスアップ/クロスダウンを判定するユーティリティ
     @cross = Cross.new
+    # 動作モードで指定した値でcollect/trade/testを分ける
     @mode  = create_mode(@exec_mode)
 
     @graph = graph_factory.create('移動平均',
       :rate, :last, ['#FF6633', '#FFAA22'])
   end
 
-  # 次のレートを受け取る
+  # 02.レート情報の処理
+  # 15秒ごとにループして実行される、たぶん
   def next_tick(tick)
     date = tick.timestamp.to_date
+    #  current_dateに本日の日付が代入されていたら処理しない（1日一回しか処理しない）
     return if !@current_date.nil? && @current_date == date
     @current_date = date
 
@@ -160,7 +167,6 @@ class TradeAndSignals
   include Mongoid::Document
 
   store_in collection: 'trade_data'
-
   # collectionのデータ型を定義
   field :macd_difference,    type: Float # macd - macd_signal
 
