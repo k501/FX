@@ -7,5 +7,5 @@ loader = TradeResultsLoader()
 data = TradeResults(loader.retrieve_trade_data())
 
 with Trainer() as trainer:
-    trainer.train(10000, data)
+    trainer.train(2500, data)
     trainer.save("./model.ckpt")
