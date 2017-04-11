@@ -13,7 +13,7 @@ class TensorFlowUsd
 
   def self.description
     <<-STR
-TensorFlowと連携してUSDJPYをトレードするエージェントのサンプル
+trading robot by TensorFlow
       STR
   end
 
@@ -44,9 +44,6 @@ TensorFlowと連携してUSDJPYをトレードするエージェントのサン�
     return if !@current_date.nil? && @current_date == date
     @current_date = date
 
-    # logger.debug tick[:USDJPY].bid
-    # logger.debug @current_date
-
     signal = @calculator.next_tick(tick)
     @cross.next_data(signal[:ma5], signal[:ma10])
 
@@ -61,9 +58,14 @@ TensorFlowと連携してUSDJPYをトレードするエージェントのサン�
     elsif @cross.cross_down?
       sell(signal)
     end
+
+    # 多くのデータを取得したいので、毎日、買建てを仕込む
+    # buy(signal)
+
   end
 
   def buy(signal)
+    # logger.debug "buy"
     # 既存のポジションを決済する
     close_exist_positions
     return unless @mode.do_trade?(signal, "buy")
@@ -71,14 +73,14 @@ TensorFlowと連携してUSDJPYをトレードするエージェントのサン�
     result = broker.buy(:USDJPY, 10000)
     @current_position = broker.positions[result.trade_opened.internal_id]
     @current_signal = signal
-
   end
 
+
   def sell(signal)
-    # logger.debug 'sell'
-    # logger.debug @current_date
+    # logger.debug "sell"
     close_exist_positions
     return unless @mode.do_trade?(signal, "sell")
+    # 売る
     result = broker.sell(:USDJPY, 10000)
     @current_position = broker.positions[result.trade_opened.internal_id]
     @current_signal = signal
